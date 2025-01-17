@@ -14,13 +14,26 @@ const initialTodos = [
 ]
 
 const RemovableTodosPage = () => {
+    const TodoItem = memo((props: ITodoItemProps) => {
+        return (
+            <li className="todoItem" key={props.item.id}>
+                <p>{props.item.text}</p>
+                <div className="buttons">
+                    <button onClick={() => openEditWindow(props.item.id)}>edit</button>
+                    <button onClick={() => props.onRemove(props.item.id)}>x</button>
+                </div>
+            </li>
+        )
+    })
+
     const [isCreateTodoModalOpen, setIsCreateTodoModalOpen] = useState(false)
+    const [isEditTodoModalOpen, setIsEditTodoModalOpen] = useState(false)
+    const [currentId, setCurrentId] = useState(-1)
 
     const [todoList, setTodoList] = useState<ITodoItem[]>(initialTodos)
 
     const handleCreateVacation = () => {
         setIsCreateTodoModalOpen(true);
-        //setTodoList((prev) => [...prev, { id: prev[prev.length - 1].id + 1, text: taskText }])
     }
 
     const handleRemoveTodo = useCallback((id: ITodoItem['id']) => {
@@ -29,7 +42,22 @@ const RemovableTodosPage = () => {
 
     const handleSaveTask = () => {
         setIsCreateTodoModalOpen(false);
-        setTodoList((prev) => [...prev, { id: prev[prev.length - 1].id + 1, text: taskText }])
+        setTodoList((prev) => [...prev, { id: prev[prev.length - 1].id + 1, text: taskText }]);
+        setText('');
+    }
+
+    const openEditWindow = (targetId) => {
+        const item = todoList.find((it) => it.id == targetId);
+        setCurrentId(targetId);
+        setText(item.text);
+        setIsEditTodoModalOpen(true);
+    }
+
+    const saveEditedTask = () => {
+        setIsEditTodoModalOpen(false);
+        const item = todoList.find((it) => it.id == currentId);
+        item.text = taskText;
+        setText('');
     }
 
     const [taskText, setText] = useState('')
@@ -72,6 +100,20 @@ const RemovableTodosPage = () => {
                             <button onClick={() => setIsCreateTodoModalOpen(false)}>Close</button>
                         </Modal>}
                 </div>
+                <div className="todoEditWrapper">
+                    {isEditTodoModalOpen &&
+                        <Modal>
+                            <h2>Editing element</h2>
+                            <input
+                                className="changingItemText"
+                                placeholder="Add Task..."
+                                value={taskText}
+                                onChange={(ev) => setText(ev.target.value)}
+                            />
+                            <button onClick={() => saveEditedTask()}>Save</button>
+                            <button onClick={() => setIsEditTodoModalOpen(false)}>Close</button>
+                        </Modal>}
+                </div>
             </div>
         </div>
     )
@@ -81,13 +123,5 @@ interface ITodoItemProps {
   item: ITodoItem
   onRemove: (id: ITodoItem['id']) => void
 }
-const TodoItem = memo((props: ITodoItemProps) => {
-  return (
-    <li className="todoItem" key={props.item.id}>
-      <p>{props.item.text}</p>
-      <button onClick={() => props.onRemove(props.item.id)}>x</button>
-    </li>
-  )
-})
 
 export default RemovableTodosPage
