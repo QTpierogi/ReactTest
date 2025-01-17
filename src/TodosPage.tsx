@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, memo } from 'react'
 import Modal from './modal/index'
+import useDebounce from './useDebounce'
 
 interface ITodoItem {
     id: number
@@ -13,7 +14,7 @@ const initialTodos = [
     { id: 4, text: 'Fourth' },
 ]
 
-const RemovableTodosPage = () => {
+const TodosPage = () => {
     const TodoItem = memo((props: ITodoItemProps) => {
         return (
             <li className="todoItem" key={props.item.id}>
@@ -63,12 +64,13 @@ const RemovableTodosPage = () => {
     const [taskText, setText] = useState('')
 
     const [searchString, setSearchString] = useState('')
+    const debouncedSearch = useDebounce(searchString, 500);
 
     const searchResults = useMemo(() => {
         if (!searchString) return todoList
 
         return todoList.filter((it) => it.text.includes(searchString))
-    }, [todoList, searchString])
+    }, [todoList, debouncedSearch])
 
     const renderTodo = (item: ITodoItem, _: number) => {
         return <TodoItem onRemove={handleRemoveTodo} item={item} key={item.id} />
@@ -124,4 +126,4 @@ interface ITodoItemProps {
   onRemove: (id: ITodoItem['id']) => void
 }
 
-export default RemovableTodosPage
+export default TodosPage

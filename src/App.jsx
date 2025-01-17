@@ -1,8 +1,8 @@
 import './App.css'
-import RemovableTodosPage from './TodosPage.tsx'
+import TodosPage from './TodosPage.tsx'
 
 function App() {
-    return <RemovableTodosPage />
+    return <TodosPage />
 }
 
 export default App
